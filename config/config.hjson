@@ -1,0 +1,53 @@
+{
+    # Info about the worksheet that the inspector produces
+    inspectorWeldMappingSheet: {
+        worksheetIndex: 0
+        startingRow: 2
+        columnMapping: {
+            orNumber: A
+            heatNumber: L
+            pipeNumber: M
+        }
+    }
+
+    # The worksheet from the survey
+    surveySheet: {
+        worksheetIndex: 0
+        startingRow: 1
+        columnMapping: {
+            orNumber: A
+            pipeNumber: C
+            heatNumber: D
+        }
+    }
+
+    # The worksheet that will be produced after this script does its work
+    # The data from the original spreadsheet will be maintained. Columns
+    # specified in this config will be added to the output worksheet.
+    outputSheet: {
+        name: 'discrepancies-{{original-file-name}}'
+        # background colors for cell output
+        colorCodes: {
+            # comparison was not exact
+            discrepancy: FFF99836
+            # unable to find a record to compare to
+            recordNotFound: FFFC2376
+            # no reference number (OR number) to use to lookup a comparison record
+            noReferenceNumber: FF23FCBE
+        }
+
+        # Specify columns to send merged output to
+        columns: {
+            pipeNumber: {
+                headerRow: 0
+                headerText: Pipe No. Discrepancy
+                columnMapping: T
+            }
+            heatNumber: {
+                headerRow: 0
+                headerText: Heat No. Discrepancy
+                columnMapping: U
+            }
+        }
+    }
+}

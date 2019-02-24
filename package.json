@@ -1,0 +1,16 @@
+{
+  "name": "verify-weld-mapping",
+  "version": "1.0.0",
+  "description": "Compare the weld mapping file to the survey file. Log Discrepancies.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node ./index.js"
+  },
+  "author": "Cliff Newton",
+  "license": "ISC",
+  "dependencies": {
+    "hjson": "^3.1.2",
+    "xlsx-style": "^0.8.13"
+  }
+}
