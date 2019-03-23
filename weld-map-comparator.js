@@ -97,12 +97,34 @@ class WeldMapComparator {
         this.writeMarkedUpWorkbook();
     }
 
+    ensureAdequateWorksheetRange(worksheet) {
+        const outputColumns = config.outputSheet.columns;
+        const worksheetRange = XLSX.utils.decode_range(worksheet['!ref']);
+
+        let maxColumn = 0;
+
+        Object.keys(outputColumns).forEach(columnKey => {
+            const columnIndex = XLSX.utils.decode_col(outputColumns[columnKey].columnMapping);
+            if (columnIndex > maxColumn) {
+                maxColumn = columnIndex;
+            }
+        });
+
+        if (maxColumn > worksheetRange.e.c) {
+            worksheetRange.e.c = maxColumn;
+        }
+
+        worksheet['!ref'] = XLSX.utils.encode_range(worksheetRange);
+    }
+
     markupWorkbook() {
         const workbook = this.inspectorWorkbook;
         const sheetName = workbook.SheetNames[config.inspectorWeldMappingSheet.worksheetIndex];
         const worksheet = workbook.Sheets[sheetName];
         const colorCodes = config.outputSheet.colorCodes;
         const outputColumns = config.outputSheet.columns;
+
+        this.ensureAdequateWorksheetRange(worksheet);
 
         // Output column headers
         Object.keys(outputColumns).forEach(columnKey => {

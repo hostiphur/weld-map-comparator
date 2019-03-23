@@ -1,6 +1,6 @@
 'use strict';
 
-const WeldMapComparator = require('./weld-map-comparator.js');
+const WeldMapComparator = require('../weld-map-comparator.js');
 const args = process.argv.slice(2);
 let inspectorWorkbookPath;
 let surveyWorkbookPath;

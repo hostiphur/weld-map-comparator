@@ -7,8 +7,22 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Launch Program",
-            "program": "${workspaceFolder}/index.js"
+            "name": "Debug Node-cli",
+            "program": "${workspaceFolder}/cli/index.js",
+            "args": ["/home/cliff/Projects/Personal/verify-weld-mapping/test/data/23573-WeldMap-DDA-20190312.xlsx",
+            "/home/cliff/Projects/Personal/verify-weld-mapping/test/data/PAALP_CACTUS_II_TALLY_02-28-19.xlsx"]
+        },
+        {
+            "name": "Debug Electron",
+            "type": "node",
+            "request": "launch",
+            "cwd": "${workspaceRoot}",
+            "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron",
+            "windows": {
+                "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron.cmd"
+            },
+            "args" : ["./main.js"],
+            "outputCapture": "std"
         }
     ]
 }
