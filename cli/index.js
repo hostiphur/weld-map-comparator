@@ -1,6 +1,6 @@
 'use strict';
 
-const WeldMapComparator = require('../weld-map-comparator.js');
+const WeldMapComparator = require('../src/backend/weld-map-comparator.js/index.js');
 const args = process.argv.slice(2);
 let inspectorWorkbookPath;
 let surveyWorkbookPath;
@@ -17,6 +17,6 @@ function printUsage() {
 if (!inspectorWorkbookPath || !surveyWorkbookPath) {
     printUsage();
 } else {
-    const wmc = new WeldMapComparator(inspectorWorkbookPath, surveyWorkbookPath);
+    const wmc = new WeldMapComparator({inspectorWorkbookPath, surveyWorkbookPath});
     wmc.process();
 }

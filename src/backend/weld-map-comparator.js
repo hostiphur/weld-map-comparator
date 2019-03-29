@@ -1,19 +1,21 @@
 'use strict';
 
-const config = require('./config/config-loader.js');
+const config = require('../../config/config-loader.js');
 const XLSX = require('xlsx-style');
+const events = require('../events');
 const fs = require('fs');
 const path = require('path');
 
 class WeldMapComparator {
-    constructor(inspectorFilePath, surveyFilePath) {
-        this.inspectorFilePath = inspectorFilePath;
-        this.surveyFilePath = surveyFilePath;
+    constructor({inspectorWorkbookPath, surveyWorkbookPath, rendererEvent}) {
+        this.inspectorWorkbookPath = inspectorWorkbookPath;
+        this.surveyWorkbookPath = surveyWorkbookPath;
         this.comparisonResults = [];
         this.inspectorData = [];
         this.inspectorWorkbook = undefined;
         this.surveyData = [];
         this.comparisonResultsStartingColumn = 19;
+        this.rendererEvent = rendererEvent;
     }
 
     async streamFile(filePath){
@@ -31,6 +33,10 @@ class WeldMapComparator {
                 resolve(workbook);
             });
         });
+    }
+
+    log (message) {
+        this.rendererEvent.sender.send(events.COMPARISON_STATUS_LOG, message);
     }
 
     convertSheetToArray(sheet, startingRow, columnMapping){
@@ -61,7 +67,7 @@ class WeldMapComparator {
     };
 
     async loadExcelFile(filePath) {
-        console.log(`>>>>>>> ${filePath}`);
+        this.log(`>>>>>>> ${filePath}`);
 
         return await this.streamFile(filePath);
     }
@@ -72,8 +78,8 @@ class WeldMapComparator {
     }
 
     async loadFiles() {
-        this.inspectorWorkbook = await this.loadExcelFile(this.inspectorFilePath);
-        this.surveyWorkbook = await this.loadExcelFile(this.surveyFilePath);
+        this.inspectorWorkbook = await this.loadExcelFile(this.inspectorWorkbookPath);
+        this.surveyWorkbook = await this.loadExcelFile(this.surveyWorkbookPath);
 
         let worksheet = this.getWorksheet(this.inspectorWorkbook, config.inspectorWeldMappingSheet.worksheetIndex);
 
@@ -166,8 +172,10 @@ class WeldMapComparator {
 
     writeMarkedUpWorkbook() {
         let fileName = config.outputSheet.name;
-        fileName = fileName.replace('{{original-file-name}}', path.basename(this.inspectorFilePath));
+        fileName = fileName.replace('{{original-file-name}}', path.basename(this.inspectorWorkbookPath));
         XLSX.writeFile(this.inspectorWorkbook, `./out/${fileName}`);
+        const fullPath = path.resolve(`./out/${fileName}`)
+        this.log(`discrepancy file written to ${fullPath}`);
     }
 
     compareFiles() {
@@ -187,7 +195,7 @@ class WeldMapComparator {
             const orBreakdown = curOrNumber.match(/(OR)([0-9]+)([a-zA-Z]*)/);
 
             if (!orBreakdown) {
-                console.log(`[${this.inspectorFilePath}:${iRow.rowNumber}] Invalid OR number format detected: ${curOrNumber}`);
+                this.log(`[${this.inspectorWorkbookPath}:${iRow.rowNumber}] Invalid OR number format detected: ${curOrNumber}`);
                 this.pushIgnoredRow(iRow, false, true);
                 return;
             }
@@ -234,7 +242,7 @@ class WeldMapComparator {
 
             this.pushIgnoredRow(iRow, true, false);
 
-            console.log(`OOF!!! no matching OR number found for ${iRow.orNumber}`);
+            this.log(`OOF!!! no matching OR number found for ${iRow.orNumber}`);
             return;
         });
     }
@@ -282,7 +290,7 @@ class WeldMapComparator {
         const differByLetterOnly = stringDiff === letter.toLowerCase();
 
         if (stringDiff.length > 0 && differByLetterOnly === false){
-            console.log(`[${inspectorRow.rowNumber}:${surveyRow.rowNumber}] pipe number discrepancy found: i-${inspectorRow.orNumber} / s-${sor} ... ${ipn} / ${spn}`);
+            this.log(`[${inspectorRow.rowNumber}:${surveyRow.rowNumber}] pipe number discrepancy found: i-${inspectorRow.orNumber} / s-${sor} ... ${ipn} / ${spn}`);
 
             return {
                 discrepancy: true,
@@ -307,7 +315,7 @@ class WeldMapComparator {
 
         if (ihn.toLowerCase().trim() !== shn.toLowerCase().trim()){
 
-            console.log(`[${inspectorRow.rowNumber}:${surveyRow.rowNumber}] heat number discrepancy found: i-${inspectorRow.orNumber} / s-${sor} ... ${ihn} / ${shn}`);
+            this.log(`[${inspectorRow.rowNumber}:${surveyRow.rowNumber}] heat number discrepancy found: i-${inspectorRow.orNumber} / s-${sor} ... ${ihn} / ${shn}`);
 
             return {
                 discrepancy: true,

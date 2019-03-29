@@ -1,4 +1,6 @@
-const { app, BrowserWindow } = require('electron')
+const { app, ipcMain, BrowserWindow } = require('electron')
+const events = require('./src/events');
+const WeldMapComparator = require('./src/backend/weld-map-comparator');
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -9,7 +11,14 @@ function createWindow () {
     win = new BrowserWindow({ width: 800, height: 600 })
 
     // and load the index.html of the app.
-    win.loadFile('./index.html')
+    win.loadFile('./src/frontend/index.html')
+
+    ipcMain.on(events.RUN_COMPARISON, (event, comparisonOptions) => {
+        console.log(comparisonOptions);
+        comparisonOptions.rendererEvent = event;
+        const wmc = new WeldMapComparator(comparisonOptions);
+        wmc.process();
+    });
 
     // Emitted when the window is closed.
     win.on('closed', () => {

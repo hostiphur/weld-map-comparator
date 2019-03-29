@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Weld Map Compare</title>
+        <script type="text/javascript">
+
+            document.addEventListener("keydown", function (e) {
+                if (e.which === 123) {
+                    require('remote').getCurrentWindow().toggleDevTools();
+                } else if (e.which === 116) {
+                    location.reload();
+                }
+            });
+    
+            const { dialog } = require('electron').remote;
+            const handlers = require('./uiHandlers.js');
+
+            document.addEventListener('DOMContentLoaded', async event => {
+
+                window.onload = () => {
+                    handlers.init();
+                    handlers.setupClickHandlerForFileLoad('#btn-load-weld-map-file', '#weld-map-file-path');
+                    handlers.setupClickHandlerForFileLoad('#btn-load-survey-file', '#survey-file-path');
+                    handlers.setupClickHandlerForRunComparison('#btn-run-comparison');
+                };
+            });
+        </script>
+    </head>
+    <body>
+        <div>
+            <div>
+                <input type="button" id="btn-load-weld-map-file" value="Load Weld Map File" style="width:300px"/>
+                <input readonly type="text" id="weld-map-file-path" style="width:600px"/>
+            </div>
+            <div>
+                <input type="button" id="btn-load-survey-file" value="Load Survey File" style="width:300px"/>
+                <input readonly type="text" id="survey-file-path" style="width:600px"/>
+            </div>
+            <div>
+                <input type="button" id="btn-run-comparison" value="Run Comparison"/>
+            </div>
+            <div id="outputArea" style="width:100%;height:400px;overflow:auto;border:solid 1px black">
+            </div>
+        </div>
+    </body>
+</html>
